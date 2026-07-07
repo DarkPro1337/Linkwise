@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Linkwise.Core/Linkwise.Core.csproj" />
+  <Project Path="Linkwise.Desktop/Linkwise.Desktop.csproj" />
+  <Project Path="Linkwise.Platforms.Mac/Linkwise.Platforms.Mac.csproj" />
+  <Project Path="Linkwise.Platforms.Windows/Linkwise.Platforms.Windows.csproj" />
+</Solution>

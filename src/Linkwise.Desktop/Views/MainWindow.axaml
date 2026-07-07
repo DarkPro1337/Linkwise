@@ -1,0 +1,189 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Linkwise.Desktop.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
+    x:Class="Linkwise.Desktop.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    Icon="/Assets/avalonia-logo.ico"
+    Title="Linkwise"
+    Width="1100"
+    Height="720"
+    MinWidth="960"
+    MinHeight="620">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,10,0,4" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="MinHeight" Value="34" />
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="14,6" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+        <Border DockPanel.Dock="Top" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" Padding="18,14">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                <StackPanel>
+                    <TextBlock Text="Linkwise" FontSize="24" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ConfigPath}" Opacity="0.72" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="Reload" Command="{Binding LoadCommand}" />
+                    <Button Content="Save" Command="{Binding SaveCommand}" Classes="accent" />
+                </StackPanel>
+
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Status}" Margin="0,10,0,0" Opacity="0.8" />
+            </Grid>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" Padding="18,12">
+            <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding TestUrl, Mode=TwoWay}" PlaceholderText="https://example.com/path" />
+                <Button Grid.Column="1" Content="Preview" Command="{Binding PreviewRouteCommand}" />
+                <Button Grid.Column="2" Content="Open Test URL" Command="{Binding OpenTestUrlCommand}" />
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding RoutePreview}" Margin="0,8,0,0" FontWeight="SemiBold" />
+            </Grid>
+        </Border>
+
+        <TabControl Padding="18">
+            <TabItem Header="Browser Targets">
+                <Grid ColumnDefinitions="280,*" ColumnSpacing="18">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                            <Button Content="Import Chrome" Command="{Binding ImportChromeProfilesCommand}" />
+                            <Button Content="Add" Command="{Binding AddTargetCommand}" />
+                            <Button Content="Remove" Command="{Binding RemoveSelectedTargetCommand}" />
+                        </StackPanel>
+
+                        <ListBox ItemsSource="{Binding BrowserTargets}" SelectedItem="{Binding SelectedTarget, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
+                                    <StackPanel Margin="8,6">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Id}" Opacity="0.68" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
+                    <ScrollViewer Grid.Column="1">
+                        <StackPanel MaxWidth="720">
+                            <TextBlock Classes="section-title" Text="Target" />
+
+                            <TextBlock Classes="label" Text="Name" />
+                            <TextBox Text="{Binding SelectedTarget.Name, Mode=TwoWay}" PlaceholderText="Chrome Work" />
+
+                            <TextBlock Classes="label" Text="Executable Path" />
+                            <TextBox Text="{Binding SelectedTarget.ExecutablePath, Mode=TwoWay}" PlaceholderText="/path/to/browser" />
+
+                            <TextBlock Classes="label" Text="Arguments" />
+                            <TextBox
+                                Text="{Binding SelectedTarget.ArgumentsText, Mode=TwoWay}"
+                                AcceptsReturn="True"
+                                MinHeight="140"
+                                PlaceholderText="one argument per line" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Routing Rules">
+                <Grid ColumnDefinitions="320,*" ColumnSpacing="18">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                            <Button Content="Add" Command="{Binding AddRuleCommand}" />
+                            <Button Content="Remove" Command="{Binding RemoveSelectedRuleCommand}" />
+                        </StackPanel>
+
+                        <ListBox ItemsSource="{Binding Rules}" SelectedItem="{Binding SelectedRule, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:RoutingRuleEditorViewModel">
+                                    <Grid Margin="8,6" ColumnDefinitions="*,Auto">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Pattern}" Opacity="0.68" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Priority}" FontWeight="SemiBold" Margin="12,0,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
+                    <ScrollViewer Grid.Column="1">
+                        <StackPanel MaxWidth="720">
+                            <TextBlock Classes="section-title" Text="Rule" />
+
+                            <CheckBox Content="Enabled" IsChecked="{Binding SelectedRule.Enabled, Mode=TwoWay}" Margin="0,12,0,0" />
+
+                            <TextBlock Classes="label" Text="Name" />
+                            <TextBox Text="{Binding SelectedRule.Name, Mode=TwoWay}" PlaceholderText="Work GitLab" />
+
+                            <TextBlock Classes="label" Text="Priority" />
+                            <NumericUpDown Value="{Binding SelectedRule.Priority, Mode=TwoWay}" Minimum="0" Maximum="100000" Increment="10" />
+
+                            <TextBlock Classes="label" Text="Match Kind" />
+                            <ComboBox ItemsSource="{Binding SelectedRule.MatchKinds}" SelectedItem="{Binding SelectedRule.MatchKind, Mode=TwoWay}" />
+
+                            <TextBlock Classes="label" Text="Pattern" />
+                            <TextBox Text="{Binding SelectedRule.Pattern, Mode=TwoWay}" PlaceholderText="gitlab.company.local" />
+
+                            <TextBlock Classes="label" Text="Target" />
+                            <ComboBox
+                                ItemsSource="{Binding BrowserTargets}"
+                                SelectedValue="{Binding SelectedRule.TargetId, Mode=TwoWay}"
+                                SelectedValueBinding="{Binding Id}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Fallback">
+                <StackPanel MaxWidth="720">
+                    <TextBlock Classes="section-title" Text="Fallback Target" />
+                    <TextBlock Classes="label" Text="Target" />
+                    <ComboBox
+                        ItemsSource="{Binding BrowserTargets}"
+                        SelectedValue="{Binding FallbackTargetId, Mode=TwoWay}"
+                        SelectedValueBinding="{Binding Id}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Margin="0,18,0,4" FontWeight="SemiBold" Text="macOS demo command" />
+                    <TextBox
+                        IsReadOnly="True"
+                        Text="dotnet run --project src/Linkwise.Desktop/Linkwise.Desktop.csproj -- https://gitlab.company.local/project" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+
+</Window>

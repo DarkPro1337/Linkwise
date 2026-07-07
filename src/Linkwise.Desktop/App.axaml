@@ -1,0 +1,34 @@
+<Application
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Linkwise.Desktop.App"
+    xmlns:local="using:Linkwise.Desktop"
+    xmlns:vm="using:Linkwise.Desktop.ViewModels"
+    x:DataType="vm:AppViewModel"
+    RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon
+                Icon="/Assets/avalonia-logo.ico"
+                ToolTipText="Linkwise"
+                Command="{Binding ShowWindowCommand}">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Open Linkwise" Command="{Binding ShowWindowCommand}" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Quit" Command="{Binding QuitCommand}" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
+</Application>
