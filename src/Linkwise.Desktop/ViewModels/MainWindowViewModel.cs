@@ -15,21 +15,22 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly UrlRouteEngine _routeEngine;
     private readonly IUrlLauncher _launcher;
     private readonly IBrowserProfileDiscovery _browserProfileDiscovery;
+    private readonly IDefaultHandlerRegistrar _defaultHandlerRegistrar;
 
     [ObservableProperty]
-    private BrowserTargetEditorViewModel? _selectedTarget;
+    public partial BrowserTargetEditorViewModel? SelectedTarget { get; set; }
 
     [ObservableProperty]
-    private RoutingRuleEditorViewModel? _selectedRule;
+    public partial RoutingRuleEditorViewModel? SelectedRule { get; set; }
 
     [ObservableProperty]
-    private string _fallbackTargetId = string.Empty;
+    public partial string FallbackTargetId { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _testUrl = "https://gitlab.company.local/project";
+    public partial string TestUrl { get; set; } = "https://gitlab.company.local/project";
 
     [ObservableProperty]
-    private string _status = "Loading configuration...";
+    public partial string Status { get; set; } = "Loading configuration...";
 
     [ObservableProperty]
     private string _routePreview = string.Empty;
@@ -39,7 +40,8 @@ public partial class MainWindowViewModel : ViewModelBase
             new JsonFileLinkwiseConfigStore(LinkwiseConfigPaths.GetDefaultConfigPath()),
             new UrlRouteEngine(),
             new ProcessUrlLauncher(),
-            new Linkwise.Core.BrowserProfiles.ChromeBrowserProfileDiscovery())
+            new Core.BrowserProfiles.ChromeBrowserProfileDiscovery(),
+            new UnsupportedDefaultHandlerRegistrar())
     {
     }
 
@@ -47,12 +49,14 @@ public partial class MainWindowViewModel : ViewModelBase
         ILinkwiseConfigStore configStore,
         UrlRouteEngine routeEngine,
         IUrlLauncher launcher,
-        IBrowserProfileDiscovery browserProfileDiscovery)
+        IBrowserProfileDiscovery browserProfileDiscovery,
+        IDefaultHandlerRegistrar defaultHandlerRegistrar)
     {
         _configStore = configStore;
         _routeEngine = routeEngine;
         _launcher = launcher;
         _browserProfileDiscovery = browserProfileDiscovery;
+        _defaultHandlerRegistrar = defaultHandlerRegistrar;
         _ = LoadAsync();
     }
 
@@ -61,6 +65,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<RoutingRuleEditorViewModel> Rules { get; } = [];
 
     public string ConfigPath => _configStore.FilePath;
+
+    public bool IsDefaultHandlerRegistrationSupported => _defaultHandlerRegistrar.IsSupported;
 
     [RelayCommand]
     private async Task LoadAsync()
@@ -150,7 +156,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             var target = new BrowserTargetEditorViewModel
             {
-                Id = CreateUniqueId("chrome", BrowserTargets.Select(existingTarget => existingTarget.Id)),
+                Id = CreateUniqueId("chrome", BrowserTargets.Select(browserTarget => browserTarget.Id)),
                 Name = $"Chrome {profile.DisplayName}",
                 ExecutablePath = profile.ExecutablePath,
                 ArgumentsText = profileArgument
@@ -217,6 +223,67 @@ public partial class MainWindowViewModel : ViewModelBase
     private void PreviewRoute()
     {
         UpdateRoutePreview();
+    }
+
+    [RelayCommand]
+    private async Task RequestDefaultHandlerAsync()
+    {
+        try
+        {
+            var config = CreateConfigFromEditors();
+            var validationError = ValidateDefaultHandlerConfig(config);
+            if (validationError is not null)
+            {
+                Status = $"Cannot enable web-link handling: {validationError}";
+                return;
+            }
+
+            await _configStore.SaveAsync(config);
+            Status = "Requesting the default web-link handler change...";
+            var result = await _defaultHandlerRegistrar.RequestDefaultAsync();
+            Status = result switch
+            {
+                DefaultHandlerRequestResult.Changed => "Linkwise is now the default handler for HTTP and HTTPS URLs.",
+                DefaultHandlerRequestResult.UserActionRequired => "Select Linkwise for HTTP and HTTPS in Windows Default Apps.",
+                _ => throw new ArgumentOutOfRangeException(nameof(result), result, null)
+            };
+        }
+        catch (Exception exception)
+        {
+            Status = $"Could not set Linkwise as the default handler: {exception.Message}";
+        }
+    }
+
+    private static string? ValidateDefaultHandlerConfig(LinkwiseConfig config)
+    {
+        if (string.IsNullOrWhiteSpace(config.FallbackTargetId))
+            return "select a fallback browser target first.";
+
+        var targetsById = config.BrowserTargets.ToDictionary(target => target.Id, StringComparer.OrdinalIgnoreCase);
+        var requiredTargetIds = config.Rules
+            .Where(rule => rule.Enabled)
+            .Select(rule => rule.TargetId)
+            .Append(config.FallbackTargetId)
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var targetId in requiredTargetIds)
+        {
+            if (!targetsById.TryGetValue(targetId, out var target))
+                return $"target '{targetId}' does not exist.";
+
+            if (string.IsNullOrWhiteSpace(target.ExecutablePath) || !File.Exists(target.ExecutablePath))
+                return $"browser executable for '{target.Name}' does not exist.";
+
+            if (string.Equals(
+                    Path.GetFullPath(target.ExecutablePath),
+                    Environment.ProcessPath,
+                    OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+            {
+                return $"'{target.Name}' points back to Linkwise and would create a routing loop.";
+            }
+        }
+
+        return null;
     }
 
     [RelayCommand]

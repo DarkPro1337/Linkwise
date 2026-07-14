@@ -6,26 +6,25 @@ namespace Linkwise.Desktop.ViewModels;
 public partial class RoutingRuleEditorViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private string _id = string.Empty;
+    public partial string Id { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _name = string.Empty;
+    public partial string Name { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _enabled = true;
+    public partial bool Enabled { get; set; } = true;
 
     [ObservableProperty]
-    private int _priority;
+    public partial int Priority { get; set; }
 
     [ObservableProperty]
-    private RuleMatchKind _matchKind = RuleMatchKind.ExactHost;
+    public partial RuleMatchKind MatchKind { get; set; } = RuleMatchKind.ExactHost;
 
     [ObservableProperty]
-    private string _pattern = string.Empty;
+    public partial string Pattern { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _targetId = string.Empty;
-
+    public partial string TargetId { get; set; } = string.Empty;
     public IReadOnlyList<RuleMatchKind> MatchKinds { get; } = Enum.GetValues<RuleMatchKind>();
 
     public static RoutingRuleEditorViewModel FromModel(RoutingRule rule)

@@ -26,5 +26,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Linkwise.Core\Linkwise.Core.csproj" />
+        <ProjectReference Include="..\Linkwise.Platforms.Mac\Linkwise.Platforms.Mac.csproj" />
+        <ProjectReference Include="..\Linkwise.Platforms.Windows\Linkwise.Platforms.Windows.csproj" />
     </ItemGroup>
 </Project>

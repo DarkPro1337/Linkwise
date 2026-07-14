@@ -16,7 +16,8 @@ public sealed class DesktopApplicationShell(
                 services.ConfigStore,
                 services.RouteEngine,
                 services.Launcher,
-                services.BrowserProfileDiscovery)
+                services.BrowserProfileDiscovery,
+                services.DefaultHandlerRegistrar)
         };
     }
 

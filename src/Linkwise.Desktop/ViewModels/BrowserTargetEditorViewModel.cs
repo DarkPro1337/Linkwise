@@ -6,16 +6,16 @@ namespace Linkwise.Desktop.ViewModels;
 public partial class BrowserTargetEditorViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private string _id = string.Empty;
+    public partial string Id { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _name = string.Empty;
+    public partial string Name { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _executablePath = string.Empty;
+    public partial string ExecutablePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _argumentsText = string.Empty;
+    public partial string ArgumentsText { get; set; } = string.Empty;
 
     public static BrowserTargetEditorViewModel FromModel(BrowserTarget target)
     {
