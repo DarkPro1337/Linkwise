@@ -177,10 +177,18 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
-                    <TextBlock Margin="0,18,0,4" FontWeight="SemiBold" Text="macOS demo command" />
-                    <TextBox
-                        IsReadOnly="True"
-                        Text="dotnet run --project src/Linkwise.Desktop/Linkwise.Desktop.csproj -- https://gitlab.company.local/project" />
+                    <StackPanel Margin="0,24,0,0" IsVisible="{Binding IsDefaultHandlerRegistrationSupported}">
+                        <TextBlock Classes="section-title" Text="Default URL Handler" />
+                        <TextBlock
+                            Margin="0,8,0,12"
+                            Opacity="0.72"
+                            Text="Use Linkwise to route web links opened from other applications. Your operating system will ask you to confirm the change."
+                            TextWrapping="Wrap" />
+                        <Button
+                            HorizontalAlignment="Left"
+                            Content="Use Linkwise for Web Links"
+                            Command="{Binding RequestDefaultHandlerCommand}" />
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
         </TabControl>

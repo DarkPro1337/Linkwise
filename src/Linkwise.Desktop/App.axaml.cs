@@ -8,7 +8,7 @@ using Linkwise.Desktop.ViewModels;
 
 namespace Linkwise.Desktop;
 
-public partial class App : Application
+public class App : Application
 {
     private readonly AppServices _services = new();
 
@@ -22,6 +22,9 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            if (this.TryGetFeature<IActivatableLifetime>() is { } activatableLifetime)
+                activatableLifetime.Activated += HandleApplicationActivated;
+
             var shell = new DesktopApplicationShell(desktop, _services);
             DataContext = new AppViewModel(shell);
 
@@ -39,6 +42,21 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    private async void HandleApplicationActivated(object? sender, ActivatedEventArgs args)
+    {
+        if (args is not ProtocolActivatedEventArgs { Kind: ActivationKind.OpenUri, Uri: var url } || !IsHttpUrl(url))
+            return;
+
+        try
+        {
+            await _services.Router.RouteAsync(url);
+        }
+        catch
+        {
+            // The application remains available from the tray after a failed activation.
+        }
+    }
+
     private async Task RouteIncomingUrlAndShutdownAsync(Uri url, IClassicDesktopStyleApplicationLifetime desktop)
     {
         try
@@ -50,5 +68,10 @@ public partial class App : Application
         {
             desktop.Shutdown(1);
         }
+    }
+
+    private static bool IsHttpUrl(Uri url)
+    {
+        return url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps;
     }
 }
