@@ -14,13 +14,11 @@ The first run creates an empty config file at the platform application data path
 ```text
 ~/Library/Application Support/Linkwise/config.json
 ```
-
 on macOS
 
 ```text
-.../AppData/Local/Linkwise/config.json
+%APPDATA%/Linkwise
 ```
-
 on Windows
 
 Use `Import Chrome` in the Browser Targets tab to add detected local Google Chrome profiles. If Chrome is not installed or no Chrome user data directory exists, no targets are created automatically.
