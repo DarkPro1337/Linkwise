@@ -11,15 +11,8 @@ This project is a proof-of-concept for a cross-platform URL router and browser p
 
 The first run creates an empty config file at the platform application data path:
 
-```text
-~/Library/Application Support/Linkwise/config.json
-```
-on macOS
-
-```text
-%APPDATA%/Linkwise
-```
-on Windows
+on macOS: `~/Library/Application Support/Linkwise/config.json`  
+on Windows: `%APPDATA%/Linkwise`
 
 Use `Import Chrome` in the Browser Targets tab to add detected local Google Chrome profiles. If Chrome is not installed or no Chrome user data directory exists, no targets are created automatically.
 
