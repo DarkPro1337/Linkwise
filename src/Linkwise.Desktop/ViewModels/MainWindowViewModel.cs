@@ -23,6 +23,22 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public partial RoutingRuleEditorViewModel? SelectedRule { get; set; }
 
+    public bool HasTargets => BrowserTargets.Count > 0;
+
+    public bool HasNoTargets => !HasTargets;
+
+    public bool HasRules => Rules.Count > 0;
+
+    public bool HasNoRules => !HasRules;
+
+    public bool HasSelectedTarget => SelectedTarget is not null;
+
+    public bool HasNoSelectedTarget => !HasSelectedTarget;
+
+    public bool HasSelectedRule => SelectedRule is not null;
+
+    public bool HasNoSelectedRule => !HasSelectedRule;
+
     [ObservableProperty]
     public partial string FallbackTargetId { get; set; } = string.Empty;
 
@@ -68,6 +84,26 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public bool IsDefaultHandlerRegistrationSupported => _defaultHandlerRegistrar.IsSupported;
 
+    partial void OnSelectedTargetChanged(BrowserTargetEditorViewModel? value)
+    {
+        OnPropertyChanged(nameof(HasSelectedTarget));
+        OnPropertyChanged(nameof(HasNoSelectedTarget));
+    }
+
+    partial void OnSelectedRuleChanged(RoutingRuleEditorViewModel? value)
+    {
+        OnPropertyChanged(nameof(HasSelectedRule));
+        OnPropertyChanged(nameof(HasNoSelectedRule));
+    }
+
+    private void NotifyCollectionStateChanged()
+    {
+        OnPropertyChanged(nameof(HasTargets));
+        OnPropertyChanged(nameof(HasNoTargets));
+        OnPropertyChanged(nameof(HasRules));
+        OnPropertyChanged(nameof(HasNoRules));
+    }
+
     [RelayCommand]
     private async Task LoadAsync()
     {
@@ -95,6 +131,7 @@ public partial class MainWindowViewModel : ViewModelBase
         EnsureTargetReferences();
         SelectedTarget = BrowserTargets.FirstOrDefault();
         SelectedRule = Rules.FirstOrDefault();
+        NotifyCollectionStateChanged();
         Status = $"Loaded {BrowserTargets.Count} targets and {Rules.Count} rules.";
         UpdateRoutePreview();
     }
@@ -118,6 +155,7 @@ public partial class MainWindowViewModel : ViewModelBase
         };
 
         BrowserTargets.Add(target);
+        NotifyCollectionStateChanged();
         if (string.IsNullOrWhiteSpace(FallbackTargetId))
             FallbackTargetId = target.Id;
 
@@ -171,6 +209,7 @@ public partial class MainWindowViewModel : ViewModelBase
             FallbackTargetId = BrowserTargets.FirstOrDefault()?.Id ?? string.Empty;
 
         EnsureTargetReferences();
+        NotifyCollectionStateChanged();
         UpdateRoutePreview();
         Status = $"Imported Chrome profiles: {addedCount} added, {updatedCount} updated. Save to persist changes.";
     }
@@ -183,6 +222,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         BrowserTargets.Remove(SelectedTarget);
         SelectedTarget = BrowserTargets.FirstOrDefault();
+        NotifyCollectionStateChanged();
         EnsureTargetReferences();
         Status = "Removed browser target.";
         UpdateRoutePreview();
@@ -203,6 +243,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         Rules.Add(rule);
         SelectedRule = rule;
+        NotifyCollectionStateChanged();
         Status = "Added routing rule.";
         UpdateRoutePreview();
     }
@@ -215,6 +256,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         Rules.Remove(SelectedRule);
         SelectedRule = Rules.FirstOrDefault();
+        NotifyCollectionStateChanged();
         Status = "Removed routing rule.";
         UpdateRoutePreview();
     }

@@ -1,4 +1,6 @@
 ﻿using Avalonia;
+using Optris.Icons.Avalonia;
+using Optris.Icons.Avalonia.FontAwesome7;
 
 namespace Linkwise.Desktop;
 
@@ -13,11 +15,15 @@ sealed class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        IconProvider.Current.Register<FontAwesome7IconProvider>();
+
+        return AppBuilder.Configure<App>()
             .UsePlatformDetect()
 #if DEBUG
             .WithDeveloperTools()
 #endif
             .WithInterFont()
             .LogToTrace();
+    }
 }

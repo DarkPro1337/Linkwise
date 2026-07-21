@@ -1,0 +1,46 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="AppCanvasBrush" Color="#F5F6FA" />
+            <SolidColorBrush x:Key="AppSurfaceBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="AppSurfaceMutedBrush" Color="#F8F9FB" />
+            <SolidColorBrush x:Key="AppBorderBrush" Color="#E2E5EC" />
+            <SolidColorBrush x:Key="AppTextBrush" Color="#1C2230" />
+            <SolidColorBrush x:Key="AppTextMutedBrush" Color="#667085" />
+            <SolidColorBrush x:Key="AppAccentFillBrush" Color="#6353C7" />
+            <SolidColorBrush x:Key="AppAccentFillHoverBrush" Color="#5748B6" />
+            <SolidColorBrush x:Key="AppAccentFillPressedBrush" Color="#4B3DA4" />
+            <SolidColorBrush x:Key="AppAccentForegroundBrush" Color="#5B4BBE" />
+            <SolidColorBrush x:Key="AppAccentSurfaceBrush" Color="#EFECFB" />
+            <SolidColorBrush x:Key="AppDangerBrush" Color="#C53B4A" />
+            <SolidColorBrush x:Key="AppDangerSoftBrush" Color="#FFF0F1" />
+            <SolidColorBrush x:Key="AppDangerHoverSoftBrush" Color="#FFE2E5" />
+            <SolidColorBrush x:Key="AppSuccessBrush" Color="#197A5A" />
+            <SolidColorBrush x:Key="AppSuccessSoftBrush" Color="#E9F8F2" />
+            <SolidColorBrush x:Key="AppOnAccentBrush" Color="#FFFFFF" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="AppCanvasBrush" Color="#0F1117" />
+            <SolidColorBrush x:Key="AppSurfaceBrush" Color="#171A22" />
+            <SolidColorBrush x:Key="AppSurfaceMutedBrush" Color="#1E222C" />
+            <SolidColorBrush x:Key="AppBorderBrush" Color="#2B303C" />
+            <SolidColorBrush x:Key="AppTextBrush" Color="#F1F3F7" />
+            <SolidColorBrush x:Key="AppTextMutedBrush" Color="#98A2B3" />
+            <SolidColorBrush x:Key="AppAccentFillBrush" Color="#6254C7" />
+            <SolidColorBrush x:Key="AppAccentFillHoverBrush" Color="#7062D6" />
+            <SolidColorBrush x:Key="AppAccentFillPressedBrush" Color="#5547B8" />
+            <SolidColorBrush x:Key="AppAccentForegroundBrush" Color="#A89CFF" />
+            <SolidColorBrush x:Key="AppAccentSurfaceBrush" Color="#27233F" />
+            <SolidColorBrush x:Key="AppDangerBrush" Color="#F7838E" />
+            <SolidColorBrush x:Key="AppDangerSoftBrush" Color="#382228" />
+            <SolidColorBrush x:Key="AppDangerHoverSoftBrush" Color="#462830" />
+            <SolidColorBrush x:Key="AppSuccessBrush" Color="#62D1A5" />
+            <SolidColorBrush x:Key="AppSuccessSoftBrush" Color="#18342B" />
+            <SolidColorBrush x:Key="AppOnAccentBrush" Color="#FFFFFF" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

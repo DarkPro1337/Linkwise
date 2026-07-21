@@ -1,197 +1,302 @@
 <Window
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="https://github.com/projektanker/icons.avalonia"
     xmlns:vm="using:Linkwise.Desktop.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
+    mc:Ignorable="d" d:DesignWidth="1180" d:DesignHeight="780"
     x:Class="Linkwise.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
     Icon="/Assets/avalonia-logo.ico"
     Title="Linkwise"
-    Width="1100"
-    Height="720"
-    MinWidth="960"
-    MinHeight="620">
+    Width="1180"
+    Height="780"
+    MinWidth="980"
+    MinHeight="680"
+    WindowStartupLocation="CenterScreen"
+    Background="{DynamicResource AppCanvasBrush}">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Window.Styles>
-        <Style Selector="TextBlock.section-title">
-            <Setter Property="FontSize" Value="18" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-        <Style Selector="TextBlock.label">
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,10,0,4" />
-        </Style>
-        <Style Selector="TextBox">
-            <Setter Property="MinHeight" Value="34" />
-        </Style>
-        <Style Selector="Button">
-            <Setter Property="MinHeight" Value="34" />
-            <Setter Property="Padding" Value="14,6" />
-        </Style>
-    </Window.Styles>
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- App header -->
+        <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1" Padding="28,18">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource AppAccentFillBrush}">
+                    <i:Icon Value="fa7-solid fa7-route" Foreground="{DynamicResource AppOnAccentBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
 
-    <DockPanel Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-        <Border DockPanel.Dock="Top" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" Padding="18,14">
-            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                <StackPanel>
-                    <TextBlock Text="Linkwise" FontSize="24" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding ConfigPath}" Opacity="0.72" TextTrimming="CharacterEllipsis" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="Linkwise" FontSize="19" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Status}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="620" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button Content="Reload" Command="{Binding LoadCommand}" />
-                    <Button Content="Save" Command="{Binding SaveCommand}" Classes="accent" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                    <Button Classes="subtle icon-button" i:Attached.Icon="fa7-solid fa7-circle-half-stroke" Click="ToggleTheme" ToolTip.Tip="Switch light or dark theme" />
+                    <Button Classes="subtle" i:Attached.Icon="fa7-solid fa7-arrows-rotate" Content="Reload" Command="{Binding LoadCommand}" ToolTip.Tip="Discard local edits and reload the saved configuration" />
+                    <Button Classes="primary" i:Attached.Icon="fa7-solid fa7-floppy-disk" Content="Save changes" Command="{Binding SaveCommand}" />
                 </StackPanel>
-
-                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Status}" Margin="0,10,0,0" Opacity="0.8" />
             </Grid>
         </Border>
 
-        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" Padding="18,12">
-            <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
-                <TextBox Grid.Column="0" Text="{Binding TestUrl, Mode=TwoWay}" PlaceholderText="https://example.com/path" />
-                <Button Grid.Column="1" Content="Preview" Command="{Binding PreviewRouteCommand}" />
-                <Button Grid.Column="2" Content="Open Test URL" Command="{Binding OpenTestUrlCommand}" />
-                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding RoutePreview}" Margin="0,8,0,0" FontWeight="SemiBold" />
-            </Grid>
-        </Border>
+        <!-- Persistent link tester -->
+        <Border Grid.Row="1" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1" Padding="28,16">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="14">
+                <Border Width="36" Height="36" CornerRadius="9" Background="{DynamicResource AppAccentSurfaceBrush}" VerticalAlignment="Center">
+                    <i:Icon Value="fa7-solid fa7-link" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
 
-        <TabControl Padding="18">
-            <TabItem Header="Browser Targets">
-                <Grid ColumnDefinitions="280,*" ColumnSpacing="18">
-                    <DockPanel>
-                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
-                            <Button Content="Import Chrome" Command="{Binding ImportChromeProfilesCommand}" />
-                            <Button Content="Add" Command="{Binding AddTargetCommand}" />
-                            <Button Content="Remove" Command="{Binding RemoveSelectedTargetCommand}" />
-                        </StackPanel>
-
-                        <ListBox ItemsSource="{Binding BrowserTargets}" SelectedItem="{Binding SelectedTarget, Mode=TwoWay}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
-                                    <StackPanel Margin="8,6">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding Id}" Opacity="0.68" TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </DockPanel>
-
-                    <ScrollViewer Grid.Column="1">
-                        <StackPanel MaxWidth="720">
-                            <TextBlock Classes="section-title" Text="Target" />
-
-                            <TextBlock Classes="label" Text="Name" />
-                            <TextBox Text="{Binding SelectedTarget.Name, Mode=TwoWay}" PlaceholderText="Chrome Work" />
-
-                            <TextBlock Classes="label" Text="Executable Path" />
-                            <TextBox Text="{Binding SelectedTarget.ExecutablePath, Mode=TwoWay}" PlaceholderText="/path/to/browser" />
-
-                            <TextBlock Classes="label" Text="Arguments" />
-                            <TextBox
-                                Text="{Binding SelectedTarget.ArgumentsText, Mode=TwoWay}"
-                                AcceptsReturn="True"
-                                MinHeight="140"
-                                PlaceholderText="one argument per line" />
-                        </StackPanel>
-                    </ScrollViewer>
+                <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox Text="{Binding TestUrl, Mode=TwoWay}" PlaceholderText="Paste a link to preview its route…" />
+                    <Button Grid.Column="1" Classes="subtle" i:Attached.Icon="fa7-solid fa7-arrow-up-right-from-square" Content="Open link" Command="{Binding OpenTestUrlCommand}" />
                 </Grid>
-            </TabItem>
 
-            <TabItem Header="Routing Rules">
-                <Grid ColumnDefinitions="320,*" ColumnSpacing="18">
-                    <DockPanel>
-                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
-                            <Button Content="Add" Command="{Binding AddRuleCommand}" />
-                            <Button Content="Remove" Command="{Binding RemoveSelectedRuleCommand}" />
-                        </StackPanel>
+                <Border Grid.Column="2" Background="{DynamicResource AppAccentSurfaceBrush}" CornerRadius="9" Padding="14,9" MinWidth="250" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding RoutePreview}" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="360" />
+                </Border>
 
-                        <ListBox ItemsSource="{Binding Rules}" SelectedItem="{Binding SelectedRule, Mode=TwoWay}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:RoutingRuleEditorViewModel">
-                                    <Grid Margin="8,6" ColumnDefinitions="*,Auto">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                            <TextBlock Text="{Binding Pattern}" Opacity="0.68" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="Route updates as you type — saving is not required for preview." Classes="helper" Margin="0,5,0,0" />
+            </Grid>
+        </Border>
+
+        <!-- Main workspace -->
+        <TabControl Grid.Row="2" Margin="28,18,28,22">
+            <TabItem Header="Browser targets">
+                <Grid Margin="0,14,0,0" ColumnDefinitions="350,*" ColumnSpacing="18">
+                    <Border Classes="card" Padding="18">
+                        <Grid RowDefinitions="Auto,*,Auto">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Classes="card-title" Text="Browsers &amp; profiles" />
+                                    <TextBlock Classes="muted" FontSize="12" Text="Choose where links can open" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="primary icon-button" i:Attached.Icon="fa7-solid fa7-plus" Command="{Binding AddTargetCommand}" ToolTip.Tip="Add a browser target" />
+                            </Grid>
+
+                            <Grid Grid.Row="1" Margin="0,18,0,12">
+                                <ListBox Classes="editor-list" ItemsSource="{Binding BrowserTargets}" SelectedItem="{Binding SelectedTarget, Mode=TwoWay}" IsVisible="{Binding HasTargets}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
+                                            <Grid Margin="10" ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{DynamicResource AppAccentSurfaceBrush}">
+                                                    <i:Icon Value="fa7-solid fa7-window-maximize" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding ExecutablePath}" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <StackPanel IsVisible="{Binding HasNoTargets}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="250" Spacing="8">
+                                    <Border Width="52" Height="52" CornerRadius="14" Background="{DynamicResource AppAccentSurfaceBrush}">
+                                        <i:Icon Value="fa7-solid fa7-window-maximize" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="No browser targets yet" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Import Chrome profiles or add a browser manually to get started." Classes="muted" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" />
+                                    <Button Classes="primary" i:Attached.Icon="fa7-brands fa7-chrome" Content="Import Chrome profiles" Command="{Binding ImportChromeProfilesCommand}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Button Classes="subtle" i:Attached.Icon="fa7-brands fa7-chrome" Content="Import Chrome" Command="{Binding ImportChromeProfilesCommand}" HorizontalAlignment="Stretch" />
+                                <Button Grid.Column="1" Classes="danger icon-button" i:Attached.Icon="fa7-solid fa7-trash-can" Command="{Binding RemoveSelectedTargetCommand}" IsEnabled="{Binding HasSelectedTarget}" ToolTip.Tip="Remove selected target" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Classes="card" Padding="28">
+                        <Grid>
+                            <ScrollViewer IsVisible="{Binding HasSelectedTarget}">
+                                <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+                                    <TextBlock Classes="eyebrow" Text="BROWSER TARGET" />
+                                    <TextBlock Classes="page-title" Text="{Binding SelectedTarget.Name}" Margin="0,5,0,2" />
+                                    <TextBlock Classes="muted" Text="Define an application and optional profile arguments." FontSize="13" />
+
+                                    <TextBlock Classes="field-label" Text="Display name" />
+                                    <TextBox Text="{Binding SelectedTarget.Name, Mode=TwoWay}" PlaceholderText="For example, Chrome — Work" />
+                                    <TextBlock Classes="helper" Text="Use a name that makes the browser or profile easy to recognize in routing rules." />
+
+                                    <TextBlock Classes="field-label" Text="Browser executable" />
+                                    <TextBox Text="{Binding SelectedTarget.ExecutablePath, Mode=TwoWay}" PlaceholderText="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" />
+                                    <TextBlock Classes="helper" Text="Enter the full path to the browser executable." />
+
+                                    <TextBlock Classes="field-label" Text="Launch arguments" />
+                                    <TextBox Text="{Binding SelectedTarget.ArgumentsText, Mode=TwoWay}" AcceptsReturn="True" MinHeight="112" PlaceholderText="--profile-directory=Profile 1" />
+                                    <TextBlock Classes="helper" Text="Optional. Put one argument on each line; the URL is added automatically." />
+
+                                    <Border Classes="soft-card" Margin="0,22,0,0" Padding="14,11">
+                                        <StackPanel Orientation="Horizontal" Spacing="9">
+                                            <i:Icon Value="fa7-solid fa7-circle-info" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="13" VerticalAlignment="Center" />
+                                            <TextBlock Text="Internal ID:" Classes="muted" FontSize="12" />
+                                            <TextBlock Text="{Binding SelectedTarget.Id}" FontFamily="monospace" FontSize="12" />
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding Priority}" FontWeight="SemiBold" Margin="12,0,0,0" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </DockPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
 
-                    <ScrollViewer Grid.Column="1">
-                        <StackPanel MaxWidth="720">
-                            <TextBlock Classes="section-title" Text="Rule" />
-
-                            <CheckBox Content="Enabled" IsChecked="{Binding SelectedRule.Enabled, Mode=TwoWay}" Margin="0,12,0,0" />
-
-                            <TextBlock Classes="label" Text="Name" />
-                            <TextBox Text="{Binding SelectedRule.Name, Mode=TwoWay}" PlaceholderText="Work GitLab" />
-
-                            <TextBlock Classes="label" Text="Priority" />
-                            <NumericUpDown Value="{Binding SelectedRule.Priority, Mode=TwoWay}" Minimum="0" Maximum="100000" Increment="10" />
-
-                            <TextBlock Classes="label" Text="Match Kind" />
-                            <ComboBox ItemsSource="{Binding SelectedRule.MatchKinds}" SelectedItem="{Binding SelectedRule.MatchKind, Mode=TwoWay}" />
-
-                            <TextBlock Classes="label" Text="Pattern" />
-                            <TextBox Text="{Binding SelectedRule.Pattern, Mode=TwoWay}" PlaceholderText="gitlab.company.local" />
-
-                            <TextBlock Classes="label" Text="Target" />
-                            <ComboBox
-                                ItemsSource="{Binding BrowserTargets}"
-                                SelectedValue="{Binding SelectedRule.TargetId, Mode=TwoWay}"
-                                SelectedValueBinding="{Binding Id}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
-                                        <TextBlock Text="{Binding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-                    </ScrollViewer>
+                            <StackPanel IsVisible="{Binding HasNoSelectedTarget}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="310" Spacing="9">
+                                <TextBlock Text="Select a browser target" Classes="section-title" HorizontalAlignment="Center" />
+                                <TextBlock Text="Choose an item on the left to view and edit its settings." Classes="muted" TextAlignment="Center" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Fallback">
-                <StackPanel MaxWidth="720">
-                    <TextBlock Classes="section-title" Text="Fallback Target" />
-                    <TextBlock Classes="label" Text="Target" />
-                    <ComboBox
-                        ItemsSource="{Binding BrowserTargets}"
-                        SelectedValue="{Binding FallbackTargetId, Mode=TwoWay}"
-                        SelectedValueBinding="{Binding Id}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
-                                <TextBlock Text="{Binding Name}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+            <TabItem Header="Routing rules">
+                <Grid Margin="0,14,0,0" ColumnDefinitions="350,*" ColumnSpacing="18">
+                    <Border Classes="card" Padding="18">
+                        <Grid RowDefinitions="Auto,*,Auto">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Classes="card-title" Text="Routing rules" />
+                                    <TextBlock Classes="muted" FontSize="12" Text="Higher priority runs first" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="primary icon-button" i:Attached.Icon="fa7-solid fa7-plus" Command="{Binding AddRuleCommand}" ToolTip.Tip="Add a routing rule" />
+                            </Grid>
 
-                    <StackPanel Margin="0,24,0,0" IsVisible="{Binding IsDefaultHandlerRegistrationSupported}">
-                        <TextBlock Classes="section-title" Text="Default URL Handler" />
-                        <TextBlock
-                            Margin="0,8,0,12"
-                            Opacity="0.72"
-                            Text="Use Linkwise to route web links opened from other applications. Your operating system will ask you to confirm the change."
-                            TextWrapping="Wrap" />
-                        <Button
-                            HorizontalAlignment="Left"
-                            Content="Use Linkwise for Web Links"
-                            Command="{Binding RequestDefaultHandlerCommand}" />
+                            <Grid Grid.Row="1" Margin="0,18,0,12">
+                                <ListBox Classes="editor-list" ItemsSource="{Binding Rules}" SelectedItem="{Binding SelectedRule, Mode=TwoWay}" IsVisible="{Binding HasRules}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:RoutingRuleEditorViewModel">
+                                            <Grid Margin="10" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="11">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{DynamicResource AppSuccessSoftBrush}">
+                                                    <i:Icon Value="fa7-solid fa7-route" Foreground="{DynamicResource AppSuccessBrush}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding Pattern}" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <Border Grid.Column="2" Background="{DynamicResource AppSurfaceMutedBrush}" CornerRadius="6" Padding="7,3" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Priority}" FontSize="11" FontWeight="SemiBold" />
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <StackPanel IsVisible="{Binding HasNoRules}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="250" Spacing="8">
+                                    <Border Width="52" Height="52" CornerRadius="14" Background="{DynamicResource AppSuccessSoftBrush}">
+                                        <i:Icon Value="fa7-solid fa7-route" Foreground="{DynamicResource AppSuccessBrush}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="No routing rules yet" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Add a rule to send matching links to a specific browser target." Classes="muted" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" />
+                                    <Button Classes="primary" i:Attached.Icon="fa7-solid fa7-plus" Content="Create first rule" Command="{Binding AddRuleCommand}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Button Grid.Row="2" Classes="danger" i:Attached.Icon="fa7-solid fa7-trash-can" Content="Remove selected rule" Command="{Binding RemoveSelectedRuleCommand}" IsEnabled="{Binding HasSelectedRule}" HorizontalAlignment="Stretch" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Classes="card" Padding="28">
+                        <Grid>
+                            <ScrollViewer IsVisible="{Binding HasSelectedRule}">
+                                <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel>
+                                            <TextBlock Classes="eyebrow" Text="ROUTING RULE" />
+                                            <TextBlock Classes="page-title" Text="{Binding SelectedRule.Name}" Margin="0,5,0,2" />
+                                            <TextBlock Classes="muted" Text="Match a link and choose where it should open." FontSize="13" />
+                                        </StackPanel>
+                                        <ToggleSwitch Grid.Column="1" OnContent="Enabled" OffContent="Paused" IsChecked="{Binding SelectedRule.Enabled, Mode=TwoWay}" VerticalAlignment="Center" />
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="*,180" ColumnSpacing="14">
+                                        <StackPanel>
+                                            <TextBlock Classes="field-label" Text="Rule name" />
+                                            <TextBox Text="{Binding SelectedRule.Name, Mode=TwoWay}" PlaceholderText="For example, Work GitLab" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Classes="field-label" Text="Priority" />
+                                            <NumericUpDown Value="{Binding SelectedRule.Priority, Mode=TwoWay}" Minimum="0" Maximum="100000" Increment="10" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Classes="field-label" Text="Match type" />
+                                    <ComboBox ItemsSource="{Binding SelectedRule.MatchKinds}" SelectedItem="{Binding SelectedRule.MatchKind, Mode=TwoWay}" />
+                                    <TextBlock Classes="helper" Text="ExactHost matches one host; DomainSuffix includes subdomains; UrlPrefix matches the beginning of the full URL." />
+
+                                    <TextBlock Classes="field-label" Text="Pattern" />
+                                    <TextBox Text="{Binding SelectedRule.Pattern, Mode=TwoWay}" PlaceholderText="gitlab.company.local" />
+                                    <TextBlock Classes="helper" Text="Enter a host or URL pattern without wildcards." />
+
+                                    <TextBlock Classes="field-label" Text="Open with" />
+                                    <ComboBox ItemsSource="{Binding BrowserTargets}" SelectedValue="{Binding SelectedRule.TargetId, Mode=TwoWay}" SelectedValueBinding="{Binding Id}" PlaceholderText="Choose a browser target">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
+                                                <TextBlock Text="{Binding Name}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <StackPanel IsVisible="{Binding HasNoSelectedRule}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="310" Spacing="9">
+                                <TextBlock Text="Select a routing rule" Classes="section-title" HorizontalAlignment="Center" />
+                                <TextBlock Text="Choose an item on the left to view and edit its matching behavior." Classes="muted" TextAlignment="Center" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Fallback &amp; setup">
+                <ScrollViewer Margin="0,14,0,0">
+                    <StackPanel MaxWidth="820" HorizontalAlignment="Center" Spacing="18">
+                        <Border Classes="card" Padding="28">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
+                                <Border Width="48" Height="48" CornerRadius="13" Background="{DynamicResource AppAccentSurfaceBrush}">
+                                    <i:Icon Value="fa7-solid fa7-shuffle" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Classes="section-title" Text="Fallback browser" />
+                                    <TextBlock Classes="muted" Margin="0,4,0,2" Text="Links that do not match any enabled rule will open here." TextWrapping="Wrap" />
+                                    <TextBlock Classes="field-label" Text="Default target" />
+                                    <ComboBox ItemsSource="{Binding BrowserTargets}" SelectedValue="{Binding FallbackTargetId, Mode=TwoWay}" SelectedValueBinding="{Binding Id}" PlaceholderText="Choose a browser target">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
+                                                <TextBlock Text="{Binding Name}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <TextBlock Classes="helper" Text="Add a browser target first if this list is empty." />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Classes="card" Padding="28" IsVisible="{Binding IsDefaultHandlerRegistrationSupported}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
+                                <Border Width="48" Height="48" CornerRadius="13" Background="{DynamicResource AppSuccessSoftBrush}">
+                                    <i:Icon Value="fa7-solid fa7-check" Foreground="{DynamicResource AppSuccessBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                    <TextBlock Classes="section-title" Text="Make Linkwise your link handler" />
+                                    <TextBlock Classes="muted" Text="Route links opened from email, chat, and other apps. Your operating system may ask you to confirm." TextWrapping="Wrap" MaxWidth="480" />
+                                </StackPanel>
+                                <Button Grid.Column="2" Classes="primary" i:Attached.Icon="fa7-solid fa7-power-off" Content="Enable Linkwise" Command="{Binding RequestDefaultHandlerCommand}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <Border Classes="soft-card" Padding="18,14">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                                <i:Icon Value="fa7-solid fa7-circle-info" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="13" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Spacing="3">
+                                    <TextBlock Text="Configuration file" FontSize="12" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding ConfigPath}" Classes="muted" FontFamily="monospace" FontSize="11" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </StackPanel>
-                </StackPanel>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
-    </DockPanel>
 
+    </Grid>
 </Window>
