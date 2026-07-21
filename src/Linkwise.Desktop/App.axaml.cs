@@ -3,7 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Linkwise.Core.Incoming;
+#if LINKWISE_WINDOWS
 using Linkwise.Desktop.Platforms.Windows;
+#endif
 using Linkwise.Desktop.Services;
 using Linkwise.Desktop.ViewModels;
 
@@ -25,11 +27,13 @@ public class App : Application
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+#if LINKWISE_WINDOWS
             if (OperatingSystem.IsWindows())
             {
                 _trayIconThemeController = new WindowsTrayIconThemeController(this);
                 desktop.Exit += HandleDesktopExit;
             }
+#endif
 
             if (this.TryGetFeature<IActivatableLifetime>() is { } activatableLifetime)
                 activatableLifetime.Activated += HandleApplicationActivated;

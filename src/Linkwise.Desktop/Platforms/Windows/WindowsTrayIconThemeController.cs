@@ -1,3 +1,4 @@
+#if LINKWISE_WINDOWS
 using System.Runtime.Versioning;
 using Avalonia;
 using Avalonia.Controls;
@@ -60,3 +61,4 @@ internal sealed class WindowsTrayIconThemeController : IDisposable
         _shellThemeWatcher.Dispose();
     }
 }
+#endif
