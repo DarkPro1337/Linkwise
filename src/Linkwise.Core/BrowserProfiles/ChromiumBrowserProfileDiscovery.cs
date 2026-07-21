@@ -4,21 +4,32 @@ using Linkwise.Core.Models;
 
 namespace Linkwise.Core.BrowserProfiles;
 
-public sealed class ChromeBrowserProfileDiscovery : IBrowserProfileDiscovery
+internal sealed class ChromiumBrowserProfileDiscovery(ChromiumBrowserDefinition browser) : IBrowserProfileDiscovery
 {
-    private const string BrowserName = "Google Chrome";
-
     public async Task<IReadOnlyList<DiscoveredBrowserProfile>> DiscoverProfilesAsync(CancellationToken cancellationToken = default)
     {
-        var userDataDirectory = ChromeBrowserPaths.GetUserDataDirectory();
-        if (string.IsNullOrWhiteSpace(userDataDirectory) || !Directory.Exists(userDataDirectory))
+        var userDataDirectory = browser.UserDataDirectories.FirstOrDefault(Directory.Exists);
+        if (userDataDirectory is null)
             return [];
 
-        var executablePath = ChromeBrowserPaths.GetExecutablePath();
-        if (string.IsNullOrWhiteSpace(executablePath))
+        var executablePath = BrowserPathResolver.FindExecutable(browser.ExecutablePaths, browser.LinuxExecutableNames);
+        if (executablePath is null)
             return [];
 
-        var profiles = await ReadProfilesFromLocalStateAsync(userDataDirectory, cancellationToken);
+        List<ChromiumProfileInfo> profiles;
+        try
+        {
+            profiles = await ReadProfilesFromLocalStateAsync(userDataDirectory, cancellationToken);
+        }
+        catch (IOException)
+        {
+            profiles = [];
+        }
+        catch (JsonException)
+        {
+            profiles = [];
+        }
+
         if (profiles.Count == 0)
             profiles = ScanProfileDirectories(userDataDirectory);
 
@@ -26,15 +37,17 @@ public sealed class ChromeBrowserProfileDiscovery : IBrowserProfileDiscovery
             .OrderBy(profile => profile.ProfileDirectory == "Default" ? 0 : 1)
             .ThenBy(profile => profile.DisplayName, StringComparer.OrdinalIgnoreCase)
             .Select(profile => new DiscoveredBrowserProfile(
-                BrowserName,
+                browser.Id,
+                browser.Name,
                 profile.DisplayName,
                 executablePath,
                 userDataDirectory,
-                profile.ProfileDirectory))
+                profile.ProfileDirectory,
+                [$"--profile-directory={profile.ProfileDirectory}"]))
             .ToList();
     }
 
-    private static async Task<List<ChromeProfileInfo>> ReadProfilesFromLocalStateAsync(
+    private static async Task<List<ChromiumProfileInfo>> ReadProfilesFromLocalStateAsync(
         string userDataDirectory,
         CancellationToken cancellationToken)
     {
@@ -51,7 +64,7 @@ public sealed class ChromeBrowserProfileDiscovery : IBrowserProfileDiscovery
             return [];
         }
 
-        var profiles = new List<ChromeProfileInfo>();
+        var profiles = new List<ChromiumProfileInfo>();
         foreach (var profileProperty in infoCacheElement.EnumerateObject())
         {
             var profileDirectory = profileProperty.Name;
@@ -59,20 +72,20 @@ public sealed class ChromeBrowserProfileDiscovery : IBrowserProfileDiscovery
                 continue;
 
             var displayName = ReadDisplayName(profileProperty.Value, profileDirectory);
-            profiles.Add(new ChromeProfileInfo(displayName, profileDirectory));
+            profiles.Add(new ChromiumProfileInfo(displayName, profileDirectory));
         }
 
         return profiles;
     }
 
-    private static List<ChromeProfileInfo> ScanProfileDirectories(string userDataDirectory)
+    private static List<ChromiumProfileInfo> ScanProfileDirectories(string userDataDirectory)
     {
         return Directory.EnumerateDirectories(userDataDirectory)
             .Select(Path.GetFileName)
             .Where(directoryName => directoryName is not null &&
                                     (string.Equals(directoryName, "Default", StringComparison.OrdinalIgnoreCase) ||
                                      directoryName.StartsWith("Profile ", StringComparison.OrdinalIgnoreCase)))
-            .Select(directoryName => new ChromeProfileInfo(directoryName!, directoryName!))
+            .Select(directoryName => new ChromiumProfileInfo(directoryName!, directoryName!))
             .ToList();
     }
 
@@ -83,13 +96,11 @@ public sealed class ChromeBrowserProfileDiscovery : IBrowserProfileDiscovery
             if (profileElement.TryGetProperty(propertyName, out var value) &&
                 value.ValueKind == JsonValueKind.String &&
                 !string.IsNullOrWhiteSpace(value.GetString()))
-            {
                 return value.GetString()!;
-            }
         }
 
         return profileDirectory;
     }
 
-    private sealed record ChromeProfileInfo(string DisplayName, string ProfileDirectory);
+    private sealed record ChromiumProfileInfo(string DisplayName, string ProfileDirectory);
 }

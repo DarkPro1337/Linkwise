@@ -98,13 +98,13 @@
                                         <i:Icon Value="fa7-solid fa7-window-maximize" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Text="No browser targets yet" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Import Chrome profiles or add a browser manually to get started." Classes="muted" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" />
-                                    <Button Classes="primary" i:Attached.Icon="fa7-brands fa7-chrome" Content="Import Chrome profiles" Command="{Binding ImportChromeProfilesCommand}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                    <TextBlock Text="Import profiles from installed browsers or add a target manually to get started." Classes="muted" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" />
+                                    <Button Classes="primary" i:Attached.Icon="fa7-solid fa7-download" Content="Import browser profiles" Click="OpenBrowserImport" HorizontalAlignment="Center" Margin="0,4,0,0" />
                                 </StackPanel>
                             </Grid>
 
                             <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                <Button Classes="subtle" i:Attached.Icon="fa7-brands fa7-chrome" Content="Import Chrome" Command="{Binding ImportChromeProfilesCommand}" HorizontalAlignment="Stretch" />
+                                <Button Classes="subtle" i:Attached.Icon="fa7-solid fa7-download" Content="Import profiles" Click="OpenBrowserImport" HorizontalAlignment="Stretch" />
                                 <Button Grid.Column="1" Classes="danger icon-button" i:Attached.Icon="fa7-solid fa7-trash-can" Command="{Binding RemoveSelectedTargetCommand}" IsEnabled="{Binding HasSelectedTarget}" ToolTip.Tip="Remove selected target" />
                             </Grid>
                         </Grid>

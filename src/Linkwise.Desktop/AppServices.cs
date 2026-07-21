@@ -15,7 +15,7 @@ public sealed class AppServices
         ConfigStore = new JsonFileLinkwiseConfigStore(LinkwiseConfigPaths.GetDefaultConfigPath());
         RouteEngine = new UrlRouteEngine();
         Launcher = new ProcessUrlLauncher();
-        BrowserProfileDiscovery = new ChromeBrowserProfileDiscovery();
+        BrowserProfileDiscovery = new BrowserProfileDiscovery();
         DefaultHandlerRegistrar = CreateDefaultHandlerRegistrar();
         Router = new UrlRouter(ConfigStore, RouteEngine, Launcher);
     }
