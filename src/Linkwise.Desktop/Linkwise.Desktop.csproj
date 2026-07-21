@@ -6,6 +6,28 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets\app-windows.ico</ApplicationIcon>
+        <AssemblyTitle>Linkwise</AssemblyTitle>
+        <Product>Linkwise</Product>
+        <Description>Route web links to the right browser.</Description>
+        <Company>Artem Chernykh (@DarkPro1337)</Company>
+        <Copyright>Copyright © 2026 Artem Chernykh</Copyright>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <LinkwiseTargetPlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">Windows</LinkwiseTargetPlatform>
+        <LinkwiseTargetPlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-'))">MacOS</LinkwiseTargetPlatform>
+        <LinkwiseTargetPlatform Condition="'$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">Windows</LinkwiseTargetPlatform>
+        <LinkwiseTargetPlatform Condition="'$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">MacOS</LinkwiseTargetPlatform>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(LinkwiseTargetPlatform)' == 'Windows'">
+        <DefineConstants>$(DefineConstants);LINKWISE_WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(LinkwiseTargetPlatform)' == 'MacOS'">
+        <DefineConstants>$(DefineConstants);LINKWISE_MACOS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,7 +49,13 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Linkwise.Core\Linkwise.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(LinkwiseTargetPlatform)' == 'MacOS'">
         <ProjectReference Include="..\Linkwise.Platforms.Mac\Linkwise.Platforms.Mac.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(LinkwiseTargetPlatform)' == 'Windows'">
         <ProjectReference Include="..\Linkwise.Platforms.Windows\Linkwise.Platforms.Windows.csproj" />
     </ItemGroup>
 </Project>

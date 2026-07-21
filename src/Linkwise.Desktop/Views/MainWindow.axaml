@@ -8,7 +8,9 @@
     mc:Ignorable="d" d:DesignWidth="1180" d:DesignHeight="780"
     x:Class="Linkwise.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
-    Icon="/Assets/avalonia-logo.ico"
+    Icon="{OnPlatform
+        Windows='/Assets/app-windows.ico',
+        macOS='/Assets/app-macos.png'}"
     Title="Linkwise"
     Width="1180"
     Height="780"
@@ -25,13 +27,28 @@
         <!-- App header -->
         <Border Grid.Row="0" Background="{DynamicResource AppSurfaceBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1" Padding="28,18">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource AppAccentFillBrush}">
-                    <i:Icon Value="fa7-solid fa7-route" Foreground="{DynamicResource AppOnAccentBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Border Width="44" Height="44" CornerRadius="12" Background="{DynamicResource AppAccentFillBrush}">
+                    <Viewbox Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Canvas Width="44" Height="44">
+                            <Path
+                                Data="M16.5 33C20.8761 33 25.0729 31.2616 28.1673 28.1673C31.2616 25.0729 33 20.8761 33 16.5M16.5 33C16.5 29.9624 14.0376 27.5 11 27.5C7.96243 27.5 5.5 29.9624 5.5 33C5.5 36.0376 7.96243 38.5 11 38.5C14.0376 38.5 16.5 36.0376 16.5 33ZM33 16.5L33 38.5M33 16.5C36.0376 16.5 38.5 14.0376 38.5 11C38.5 7.96244 36.0376 5.5 33 5.5C29.9624 5.5 27.5 7.96244 27.5 11C27.5 14.0376 29.9624 16.5 33 16.5Z"
+                                Stroke="{DynamicResource AppOnAccentBrush}"
+                                StrokeThickness="2.3"
+                                StrokeLineCap="Round" />
+                            <Path
+                                Data="M11 27.5L11 5.5M11 27.5C7.96243 27.5 5.5 29.9624 5.5 33C5.49999 36.0376 7.96243 38.5 11 38.5C14.0376 38.5 16.5 36.0376 16.5 33C16.5 29.9624 14.0376 27.5 11 27.5Z"
+                                Stroke="{DynamicResource AppOnAccentBrush}"
+                                StrokeThickness="2.3"
+                                StrokeLineCap="Round" />
+                        </Canvas>
+                    </Viewbox>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                    <TextBlock Text="Linkwise" FontSize="19" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding Status}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="620" />
+                    <TextBlock FontSize="19">
+                        <TextBlock.Inlines><Run Text="Link" FontWeight="ExtraBold" /><Run Text="wise" FontWeight="Light" Foreground="{DynamicResource AppAccentForegroundBrush}" /></TextBlock.Inlines>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Status}" Classes="muted" HorizontalAlignment="Left" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="620" />
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
@@ -49,12 +66,12 @@
                     <i:Icon Value="fa7-solid fa7-link" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
 
-                <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                     <TextBox Text="{Binding TestUrl, Mode=TwoWay}" PlaceholderText="Paste a link to preview its route…" />
                     <Button Grid.Column="1" Classes="subtle" i:Attached.Icon="fa7-solid fa7-arrow-up-right-from-square" Content="Open link" Command="{Binding OpenTestUrlCommand}" />
                 </Grid>
 
-                <Border Grid.Column="2" Background="{DynamicResource AppAccentSurfaceBrush}" CornerRadius="9" Padding="14,9" MinWidth="250" VerticalAlignment="Center">
+                <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource AppAccentSurfaceBrush}" CornerRadius="9" Padding="14,9" MinWidth="250" VerticalAlignment="Center">
                     <TextBlock Text="{Binding RoutePreview}" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="360" />
                 </Border>
 
@@ -98,13 +115,13 @@
                                         <i:Icon Value="fa7-solid fa7-window-maximize" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <TextBlock Text="No browser targets yet" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Import Chrome profiles or add a browser manually to get started." Classes="muted" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" />
-                                    <Button Classes="primary" i:Attached.Icon="fa7-brands fa7-chrome" Content="Import Chrome profiles" Command="{Binding ImportChromeProfilesCommand}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                    <TextBlock Text="Import profiles from installed browsers or add a target manually to get started." Classes="muted" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" />
+                                    <Button Classes="primary" i:Attached.Icon="fa7-solid fa7-download" Content="Import browser profiles" Click="OpenBrowserImport" HorizontalAlignment="Center" Margin="0,4,0,0" />
                                 </StackPanel>
                             </Grid>
 
                             <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                <Button Classes="subtle" i:Attached.Icon="fa7-brands fa7-chrome" Content="Import Chrome" Command="{Binding ImportChromeProfilesCommand}" HorizontalAlignment="Stretch" />
+                                <Button Classes="subtle" i:Attached.Icon="fa7-solid fa7-download" Content="Import profiles" Click="OpenBrowserImport" HorizontalAlignment="Stretch" />
                                 <Button Grid.Column="1" Classes="danger icon-button" i:Attached.Icon="fa7-solid fa7-trash-can" Command="{Binding RemoveSelectedTargetCommand}" IsEnabled="{Binding HasSelectedTarget}" ToolTip.Tip="Remove selected target" />
                             </Grid>
                         </Grid>
@@ -115,26 +132,26 @@
                             <ScrollViewer IsVisible="{Binding HasSelectedTarget}">
                                 <StackPanel MaxWidth="720" HorizontalAlignment="Left">
                                     <TextBlock Classes="eyebrow" Text="BROWSER TARGET" />
-                                    <TextBlock Classes="page-title" Text="{Binding SelectedTarget.Name}" Margin="0,5,0,2" />
+                                    <TextBlock Classes="page-title" Text="{Binding SelectedTarget.Name, FallbackValue=''}" Margin="0,5,0,2" />
                                     <TextBlock Classes="muted" Text="Define an application and optional profile arguments." FontSize="13" />
 
                                     <TextBlock Classes="field-label" Text="Display name" />
-                                    <TextBox Text="{Binding SelectedTarget.Name, Mode=TwoWay}" PlaceholderText="For example, Chrome — Work" />
+                                    <TextBox Text="{Binding SelectedTarget.Name, Mode=TwoWay, FallbackValue=''}" PlaceholderText="For example, Chrome — Work" />
                                     <TextBlock Classes="helper" Text="Use a name that makes the browser or profile easy to recognize in routing rules." />
 
                                     <TextBlock Classes="field-label" Text="Browser executable" />
-                                    <TextBox Text="{Binding SelectedTarget.ExecutablePath, Mode=TwoWay}" PlaceholderText="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" />
+                                    <TextBox Text="{Binding SelectedTarget.ExecutablePath, Mode=TwoWay, FallbackValue=''}" PlaceholderText="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" />
                                     <TextBlock Classes="helper" Text="Enter the full path to the browser executable." />
 
                                     <TextBlock Classes="field-label" Text="Launch arguments" />
-                                    <TextBox Text="{Binding SelectedTarget.ArgumentsText, Mode=TwoWay}" AcceptsReturn="True" MinHeight="112" PlaceholderText="--profile-directory=Profile 1" />
+                                    <TextBox Text="{Binding SelectedTarget.ArgumentsText, Mode=TwoWay, FallbackValue=''}" AcceptsReturn="True" MinHeight="112" PlaceholderText="--profile-directory=Profile 1" />
                                     <TextBlock Classes="helper" Text="Optional. Put one argument on each line; the URL is added automatically." />
 
                                     <Border Classes="soft-card" Margin="0,22,0,0" Padding="14,11">
                                         <StackPanel Orientation="Horizontal" Spacing="9">
                                             <i:Icon Value="fa7-solid fa7-circle-info" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="13" VerticalAlignment="Center" />
                                             <TextBlock Text="Internal ID:" Classes="muted" FontSize="12" />
-                                            <TextBlock Text="{Binding SelectedTarget.Id}" FontFamily="monospace" FontSize="12" />
+                                            <TextBlock Text="{Binding SelectedTarget.Id, FallbackValue=''}" FontFamily="monospace" FontSize="12" />
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -202,33 +219,33 @@
                                     <Grid ColumnDefinitions="*,Auto">
                                         <StackPanel>
                                             <TextBlock Classes="eyebrow" Text="ROUTING RULE" />
-                                            <TextBlock Classes="page-title" Text="{Binding SelectedRule.Name}" Margin="0,5,0,2" />
+                                            <TextBlock Classes="page-title" Text="{Binding SelectedRule.Name, FallbackValue=''}" Margin="0,5,0,2" />
                                             <TextBlock Classes="muted" Text="Match a link and choose where it should open." FontSize="13" />
                                         </StackPanel>
-                                        <ToggleSwitch Grid.Column="1" OnContent="Enabled" OffContent="Paused" IsChecked="{Binding SelectedRule.Enabled, Mode=TwoWay}" VerticalAlignment="Center" />
+                                        <ToggleSwitch Grid.Column="1" OnContent="Enabled" OffContent="Paused" IsChecked="{Binding SelectedRule.Enabled, Mode=TwoWay, FallbackValue=False}" VerticalAlignment="Center" />
                                     </Grid>
 
                                     <Grid ColumnDefinitions="*,180" ColumnSpacing="14">
                                         <StackPanel>
                                             <TextBlock Classes="field-label" Text="Rule name" />
-                                            <TextBox Text="{Binding SelectedRule.Name, Mode=TwoWay}" PlaceholderText="For example, Work GitLab" />
+                                            <TextBox Text="{Binding SelectedRule.Name, Mode=TwoWay, FallbackValue=''}" PlaceholderText="For example, Work GitLab" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Classes="field-label" Text="Priority" />
-                                            <NumericUpDown Value="{Binding SelectedRule.Priority, Mode=TwoWay}" Minimum="0" Maximum="100000" Increment="10" />
+                                            <NumericUpDown Value="{Binding SelectedRule.Priority, Mode=TwoWay, FallbackValue=0}" Minimum="0" Maximum="100000" Increment="10" />
                                         </StackPanel>
                                     </Grid>
 
                                     <TextBlock Classes="field-label" Text="Match type" />
-                                    <ComboBox ItemsSource="{Binding SelectedRule.MatchKinds}" SelectedItem="{Binding SelectedRule.MatchKind, Mode=TwoWay}" />
+                                    <ComboBox ItemsSource="{Binding SelectedRule.MatchKinds, FallbackValue={x:Null}}" SelectedItem="{Binding SelectedRule.MatchKind, Mode=TwoWay, FallbackValue={x:Null}}" />
                                     <TextBlock Classes="helper" Text="ExactHost matches one host; DomainSuffix includes subdomains; UrlPrefix matches the beginning of the full URL." />
 
                                     <TextBlock Classes="field-label" Text="Pattern" />
-                                    <TextBox Text="{Binding SelectedRule.Pattern, Mode=TwoWay}" PlaceholderText="gitlab.company.local" />
+                                    <TextBox Text="{Binding SelectedRule.Pattern, Mode=TwoWay, FallbackValue=''}" PlaceholderText="gitlab.company.local" />
                                     <TextBlock Classes="helper" Text="Enter a host or URL pattern without wildcards." />
 
                                     <TextBlock Classes="field-label" Text="Open with" />
-                                    <ComboBox ItemsSource="{Binding BrowserTargets}" SelectedValue="{Binding SelectedRule.TargetId, Mode=TwoWay}" SelectedValueBinding="{Binding Id}" PlaceholderText="Choose a browser target">
+                                    <ComboBox ItemsSource="{Binding BrowserTargets}" SelectedValue="{Binding SelectedRule.TargetId, Mode=TwoWay, FallbackValue=''}" SelectedValueBinding="{Binding Id}" PlaceholderText="Choose a browser target">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="vm:BrowserTargetEditorViewModel">
                                                 <TextBlock Text="{Binding Name}" />
@@ -252,7 +269,7 @@
                     <StackPanel MaxWidth="820" HorizontalAlignment="Center" Spacing="18">
                         <Border Classes="card" Padding="28">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
-                                <Border Width="48" Height="48" CornerRadius="13" Background="{DynamicResource AppAccentSurfaceBrush}">
+                                <Border Width="48" Height="48" VerticalAlignment="Top" CornerRadius="13" Background="{DynamicResource AppAccentSurfaceBrush}">
                                     <i:Icon Value="fa7-solid fa7-shuffle" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
                                 <StackPanel Grid.Column="1">
@@ -274,7 +291,7 @@
                         <Border Classes="card" Padding="28" IsVisible="{Binding IsDefaultHandlerRegistrationSupported}">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
                                 <Border Width="48" Height="48" CornerRadius="13" Background="{DynamicResource AppSuccessSoftBrush}">
-                                    <i:Icon Value="fa7-solid fa7-check" Foreground="{DynamicResource AppSuccessBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <i:Icon Value="fa7-solid fa7-check" Foreground="{DynamicResource AppSuccessBrush}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
                                     <TextBlock Classes="section-title" Text="Make Linkwise your link handler" />
@@ -286,7 +303,7 @@
 
                         <Border Classes="soft-card" Padding="18,14">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
-                                <i:Icon Value="fa7-solid fa7-circle-info" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="13" VerticalAlignment="Center" />
+                                <i:Icon Value="fa7-solid fa7-circle-info" Foreground="{DynamicResource AppAccentForegroundBrush}" FontSize="13" VerticalAlignment="Top" />
                                 <StackPanel Grid.Column="1" Spacing="3">
                                     <TextBlock Text="Configuration file" FontSize="12" FontWeight="SemiBold" />
                                     <TextBlock Text="{Binding ConfigPath}" Classes="muted" FontFamily="monospace" FontSize="11" TextWrapping="Wrap" />

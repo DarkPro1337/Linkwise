@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Linkwise.Core.BrowserProfiles;
 using Linkwise.Core.Configuration;
 using Linkwise.Core.Contracts;
 using Linkwise.Core.Launching;
@@ -56,7 +57,7 @@ public partial class MainWindowViewModel : ViewModelBase
             new JsonFileLinkwiseConfigStore(LinkwiseConfigPaths.GetDefaultConfigPath()),
             new UrlRouteEngine(),
             new ProcessUrlLauncher(),
-            new Core.BrowserProfiles.ChromeBrowserProfileDiscovery(),
+            new BrowserProfileDiscovery(),
             new UnsupportedDefaultHandlerRegistrar())
     {
     }
@@ -163,41 +164,55 @@ public partial class MainWindowViewModel : ViewModelBase
         Status = "Added browser target.";
     }
 
-    [RelayCommand]
-    private async Task ImportChromeProfilesAsync()
+    public async Task<IReadOnlyList<DiscoveredBrowserProfile>> DiscoverBrowserProfilesAsync()
     {
-        var profiles = await _browserProfileDiscovery.DiscoverProfilesAsync();
-        if (profiles.Count == 0)
+        Status = "Looking for installed browsers and profiles...";
+        try
         {
-            Status = "No Chrome profiles were found.";
-            return;
-        }
+            var profiles = await _browserProfileDiscovery.DiscoverProfilesAsync();
+            Status = profiles.Count == 0
+                ? "No supported browser profiles were found."
+                : $"Found {profiles.Count} browser profiles.";
 
+            return profiles;
+        }
+        catch (Exception exception)
+        {
+            Status = $"Could not scan browser profiles: {exception.Message}";
+            return [];
+        }
+    }
+
+    public bool IsBrowserProfileImported(DiscoveredBrowserProfile profile)
+    {
+        return FindTargetForProfile(profile) is not null;
+    }
+
+    public void ImportBrowserProfiles(IReadOnlyList<DiscoveredBrowserProfile> profiles)
+    {
         var addedCount = 0;
         var updatedCount = 0;
+
         foreach (var profile in profiles)
         {
-            var profileArgument = $"--profile-directory={profile.ProfileDirectory}";
-            var existingTarget = BrowserTargets.FirstOrDefault(target =>
-                target.ArgumentsText
-                    .Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                    .Any(argument => string.Equals(argument, profileArgument, StringComparison.OrdinalIgnoreCase)));
+            var existingTarget = FindTargetForProfile(profile);
+            var argumentsText = string.Join(Environment.NewLine, profile.LaunchArguments);
 
             if (existingTarget is not null)
             {
-                existingTarget.Name = $"Chrome {profile.DisplayName}";
+                existingTarget.Name = $"{profile.BrowserName} — {profile.DisplayName}";
                 existingTarget.ExecutablePath = profile.ExecutablePath;
-                existingTarget.ArgumentsText = profileArgument;
+                existingTarget.ArgumentsText = argumentsText;
                 updatedCount++;
                 continue;
             }
 
             var target = new BrowserTargetEditorViewModel
             {
-                Id = CreateUniqueId("chrome", BrowserTargets.Select(browserTarget => browserTarget.Id)),
-                Name = $"Chrome {profile.DisplayName}",
+                Id = CreateUniqueId(profile.BrowserId, BrowserTargets.Select(browserTarget => browserTarget.Id)),
+                Name = $"{profile.BrowserName} — {profile.DisplayName}",
                 ExecutablePath = profile.ExecutablePath,
-                ArgumentsText = profileArgument
+                ArgumentsText = argumentsText
             };
 
             BrowserTargets.Add(target);
@@ -211,7 +226,24 @@ public partial class MainWindowViewModel : ViewModelBase
         EnsureTargetReferences();
         NotifyCollectionStateChanged();
         UpdateRoutePreview();
-        Status = $"Imported Chrome profiles: {addedCount} added, {updatedCount} updated. Save to persist changes.";
+        Status = $"Imported browser profiles: {addedCount} added, {updatedCount} updated. Save to persist changes.";
+    }
+
+    private BrowserTargetEditorViewModel? FindTargetForProfile(DiscoveredBrowserProfile profile)
+    {
+        var pathComparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        return BrowserTargets.FirstOrDefault(target =>
+        {
+            if (!string.Equals(target.ExecutablePath.Trim(), profile.ExecutablePath, pathComparison))
+                return false;
+
+            var targetArguments = target.ArgumentsText.Split(Environment.NewLine,
+                StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            return targetArguments.SequenceEqual(profile.LaunchArguments, StringComparer.Ordinal);
+        });
     }
 
     [RelayCommand]

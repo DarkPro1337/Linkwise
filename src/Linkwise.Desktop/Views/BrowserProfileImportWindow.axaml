@@ -1,0 +1,108 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="https://github.com/projektanker/icons.avalonia"
+    xmlns:vm="using:Linkwise.Desktop.ViewModels"
+    x:Class="Linkwise.Desktop.Views.BrowserProfileImportWindow"
+    x:DataType="vm:BrowserProfileImportViewModel"
+    Title="Import browser profiles"
+    Width="720"
+    Height="680"
+    MinWidth="600"
+    MinHeight="520"
+    CanResize="True"
+    ShowInTaskbar="False"
+    WindowStartupLocation="CenterOwner"
+    Background="{DynamicResource AppCanvasBrush}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Background="{DynamicResource AppSurfaceBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="28,24,28,20">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                <Border Width="46" Height="46" CornerRadius="13" Background="{DynamicResource AppAccentFillBrush}">
+                    <i:Icon Value="fa7-solid fa7-download" Foreground="{DynamicResource AppOnAccentBrush}"
+                            FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                    <TextBlock Classes="page-title" Text="Import browser profiles" />
+                    <TextBlock Classes="muted" FontSize="13"
+                               Text="Choose the profiles Linkwise should offer as routing targets." />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid IsVisible="{Binding HasProfiles}" RowDefinitions="Auto,*" Margin="28,20,28,18">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,0,0,12">
+                    <TextBlock Text="Chrome, Firefox, Brave, Vivaldi, Opera, Chromium and Yandex"
+                               Classes="muted" FontSize="12" VerticalAlignment="Center" />
+                    <Button Grid.Column="1" Classes="subtle" Content="Select all" Command="{Binding SelectAllCommand}" />
+                    <Button Grid.Column="2" Classes="subtle" Content="Clear" Command="{Binding SelectNoneCommand}" />
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Profiles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:BrowserProfileImportItemViewModel">
+                                <StackPanel>
+                                    <TextBlock IsVisible="{Binding ShowBrowserHeader}"
+                                               Text="{Binding BrowserName}"
+                                               Classes="eyebrow"
+                                               Margin="2,12,0,8" />
+                                    <Border Classes="card" Padding="14,12" Margin="0,0,0,8">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="13">
+                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      VerticalAlignment="Center" />
+                                            <Border Grid.Column="1" Width="40" Height="40" CornerRadius="11"
+                                                    Background="{DynamicResource AppAccentSurfaceBrush}">
+                                                <TextBlock Text="{Binding BrowserInitials}"
+                                                           Foreground="{DynamicResource AppAccentForegroundBrush}"
+                                                           FontWeight="Bold" FontSize="13"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="3">
+                                                <TextBlock Text="{Binding ProfileName}" FontWeight="SemiBold"
+                                                           FontSize="14" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding ProfileLocation}" Classes="muted"
+                                                           FontSize="11" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                            <Border Grid.Column="3" Background="{DynamicResource AppSurfaceMutedBrush}"
+                                                    CornerRadius="7" Padding="8,5" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ImportState}" Classes="muted" FontSize="10" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+
+            <StackPanel IsVisible="{Binding HasNoProfiles}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        MaxWidth="390" Spacing="10" Margin="28">
+                <Border Width="58" Height="58" CornerRadius="16" Background="{DynamicResource AppAccentSurfaceBrush}">
+                    <i:Icon Value="fa7-solid fa7-magnifying-glass" Foreground="{DynamicResource AppAccentForegroundBrush}"
+                            FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="No browser profiles found" Classes="section-title" HorizontalAlignment="Center" />
+                <TextBlock Text="Install or start a supported browser once so it can create a profile, then try again. You can still add a browser manually."
+                           Classes="muted" TextAlignment="Center" TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="2" Background="{DynamicResource AppSurfaceBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,1,0,0"
+                Padding="28,16">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="9">
+                <TextBlock Text="{Binding SelectionSummary}" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Classes="subtle" Content="Cancel" Click="CancelImport" />
+                <Button Grid.Column="2" Classes="primary" Content="Import selected"
+                        i:Attached.Icon="fa7-solid fa7-download"
+                        IsEnabled="{Binding CanImport}" Click="ConfirmImport" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

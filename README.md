@@ -5,7 +5,7 @@ Cross-platform desktop URL router and browser profile picker built with .NET and
 This project is a proof-of-concept for a cross-platform URL router and browser profile picker.
 
 - `Linkwise.Core`: configuration models, JSON config store, URL rule engine, incoming URL parser, and process-based browser launcher.
-- `Linkwise.Desktop`: Avalonia settings UI, tray icon/menu, config editing, Chrome profile import, route preview, and test URL launch.
+- `Linkwise.Desktop`: Avalonia settings UI, tray icon/menu, config editing, browser profile import, route preview, and test URL launch.
 - `Linkwise.Platforms.Mac`: macOS default-handler registration through a small native Swift helper.
 - `Linkwise.Platforms.Windows`: per-user Windows URL-handler registration and Default Apps integration.
 
@@ -14,9 +14,9 @@ The first run creates an empty config file at the platform application data path
 on macOS: `~/Library/Application Support/Linkwise/config.json`  
 on Windows: `%APPDATA%/Linkwise`
 
-Use `Import Chrome` in the Browser Targets tab to add detected local Google Chrome profiles. If Chrome is not installed or no Chrome user data directory exists, no targets are created automatically.
+Use `Import profiles` in the Browser Targets tab to scan installed browsers, review the detected profiles, and choose which targets to add. Linkwise supports Google Chrome, Firefox, Brave, Vivaldi, Opera, Opera GX, Chromium, and Yandex Browser on their available desktop platforms. Microsoft Edge is intentionally not included because its built-in profile routing covers the same workflow.
 
-Other browsers support will be added in the future. 
+The importer never creates targets automatically. A browser must be installed and have an existing local profile before it appears in the selection window.
 
 ## Run
 
