@@ -6,7 +6,7 @@ using Microsoft.Win32;
 
 namespace Linkwise.Platforms.Windows;
 
-public sealed class WindowsDefaultHandlerRegistrar : IDefaultHandlerRegistrar
+public sealed partial class WindowsDefaultHandlerRegistrar : IDefaultHandlerRegistrar
 {
     private const string ApplicationName = "Linkwise";
     private const string ProgId = "Linkwise.Url";
@@ -94,6 +94,6 @@ public sealed class WindowsDefaultHandlerRegistrar : IDefaultHandlerRegistrar
         }) ?? throw new InvalidOperationException("Could not open Windows Default Apps settings.");
     }
 
-    [DllImport("shell32.dll")]
-    private static extern void SHChangeNotify(uint eventId, uint flags, nint item1, nint item2);
+    [LibraryImport("shell32.dll")]
+    private static partial void SHChangeNotify(uint eventId, uint flags, nint item1, nint item2);
 }

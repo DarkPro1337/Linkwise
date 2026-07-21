@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Linkwise.Core.Incoming;
+using Linkwise.Desktop.Platforms.Windows;
 using Linkwise.Desktop.Services;
 using Linkwise.Desktop.ViewModels;
 
@@ -11,6 +12,7 @@ namespace Linkwise.Desktop;
 public class App : Application
 {
     private readonly AppServices _services = new();
+    private IDisposable? _trayIconThemeController;
 
     public override void Initialize()
     {
@@ -22,6 +24,13 @@ public class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            if (OperatingSystem.IsWindows())
+            {
+                _trayIconThemeController = new WindowsTrayIconThemeController(this);
+                desktop.Exit += HandleDesktopExit;
+            }
+
             if (this.TryGetFeature<IActivatableLifetime>() is { } activatableLifetime)
                 activatableLifetime.Activated += HandleApplicationActivated;
 
@@ -42,13 +51,19 @@ public class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    private void HandleDesktopExit(object? sender, ControlledApplicationLifetimeExitEventArgs args)
+    {
+        _trayIconThemeController?.Dispose();
+        _trayIconThemeController = null;
+    }
+
     private async void HandleApplicationActivated(object? sender, ActivatedEventArgs args)
     {
-        if (args is not ProtocolActivatedEventArgs { Kind: ActivationKind.OpenUri, Uri: var url } || !IsHttpUrl(url))
-            return;
-
         try
         {
+            if (args is not ProtocolActivatedEventArgs { Kind: ActivationKind.OpenUri, Uri: var url } || !IsHttpUrl(url))
+                return;
+
             await _services.Router.RouteAsync(url);
         }
         catch
@@ -62,7 +77,7 @@ public class App : Application
         try
         {
             await _services.Router.RouteAsync(url);
-            desktop.Shutdown(0);
+            desktop.Shutdown();
         }
         catch
         {
@@ -70,8 +85,5 @@ public class App : Application
         }
     }
 
-    private static bool IsHttpUrl(Uri url)
-    {
-        return url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps;
-    }
+    private static bool IsHttpUrl(Uri url) => url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps;
 }

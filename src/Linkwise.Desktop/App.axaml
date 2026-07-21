@@ -27,7 +27,10 @@
     <TrayIcon.Icons>
         <TrayIcons>
             <TrayIcon
-                Icon="/Assets/avalonia-logo.ico"
+                Icon="{OnPlatform
+                    Windows='/Assets/tray-windows-dark.ico',
+                    macOS='/Assets/tray-macos-template.png'}"
+                MacOSProperties.IsTemplateIcon="True"
                 ToolTipText="Linkwise"
                 Command="{Binding ShowWindowCommand}">
                 <TrayIcon.Menu>
