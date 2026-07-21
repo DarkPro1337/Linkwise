@@ -10,7 +10,7 @@
     x:DataType="vm:MainWindowViewModel"
     Icon="{OnPlatform
         Windows='/Assets/app-windows.ico',
-        macOS='/Assets/app-macos.icns'}"
+        macOS='/Assets/app-macos.png'}"
     Title="Linkwise"
     Width="1180"
     Height="780"
