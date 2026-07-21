@@ -36,6 +36,8 @@ dotnet publish \
 cp -R "$publish/." "$macos/"
 cp "$root/build/macos/Info.plist" "$bundle/Contents/Info.plist"
 cp "$root/src/Linkwise.Desktop/Assets/app-macos.icns" "$bundle/Contents/Resources/app-macos.icns"
+cp "$root/LICENSE" "$bundle/Contents/Resources/LICENSE"
+cp "$root/THIRD-PARTY-NOTICES.md" "$bundle/Contents/Resources/THIRD-PARTY-NOTICES.md"
 
 xcrun swiftc \
     "$root/src/Linkwise.Platforms.Mac/Native/DefaultHandler.swift" \

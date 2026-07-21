@@ -1,71 +1,264 @@
-# Linkwise
+# <div align="center"><img src="assets/linkwise-logo.svg" alt="Linkwise" width="287">
 
-Cross-platform desktop URL router and browser profile picker built with .NET and AvaloniaUI.
+<div align="center"><b>Open every link in the right browser profile</b></div><br>
 
-This project is a proof-of-concept for a cross-platform URL router and browser profile picker.
+Desktop URL router and browser profile picker for Windows and macOS, built with .NET and Avalonia UI.
 
-- `Linkwise.Core`: configuration models, JSON config store, URL rule engine, incoming URL parser, and process-based browser launcher.
-- `Linkwise.Desktop`: Avalonia settings UI, tray icon/menu, config editing, browser profile import, route preview, and test URL launch.
-- `Linkwise.Platforms.Mac`: macOS default-handler registration through a small native Swift helper.
-- `Linkwise.Platforms.Windows`: per-user Windows URL-handler registration and Default Apps integration.
+Linkwise routes web links to different browsers or browser profiles based on configurable URL rules.
 
-The first run creates an empty config file at the platform application data path:
+For example:
 
-on macOS: `~/Library/Application Support/Linkwise/config.json`  
-on Windows: `%APPDATA%/Linkwise`
+* open company resources in a dedicated Chrome Work profile;
+* open GitHub links in a development profile;
+* route selected domains to Firefox;
+* ask which browser profile to use when no rule matches;
+* use a fallback browser for all remaining links.
 
-Use `Import profiles` in the Browser Targets tab to scan installed browsers, review the detected profiles, and choose which targets to add. Linkwise supports Google Chrome, Firefox, Brave, Vivaldi, Opera, Opera GX, Chromium, and Yandex Browser on their available desktop platforms. Microsoft Edge is intentionally not included because its built-in profile routing covers the same workflow.
+Linkwise can register itself as the default HTTP and HTTPS handler on Windows and macOS.
 
-The importer never creates targets automatically. A browser must be installed and have an existing local profile before it appears in the selection window.
+> [!NOTE]
+> Linkwise is currently under active development. Configuration formats and platform integration may change.
 
-## Run
+<div align="center">
+  <img src="assets/linkwise-screenshot.png" alt="Linkwise browser targets and routing preview" width="960">
+</div>
 
-Open the settings UI:
+## Features
 
-```bash
-dotnet run --project src/Linkwise.Desktop/Linkwise.Desktop.csproj
+* Cross-platform desktop application built with Avalonia UI
+* URL routing by domain and configurable matching rules
+* Multiple browser and browser-profile targets
+* Browser profile auto-discovery
+* Fallback browser configuration
+* System tray integration
+* HTTP and HTTPS default-handler registration
+* Per-user Windows registration without administrator privileges
+* Native macOS URL-handler integration
+
+## Supported browsers
+
+Linkwise can discover existing local profiles from:
+
+* Google Chrome
+* Chromium
+* Mozilla Firefox
+* Brave
+* Vivaldi
+* Opera
+* Opera GX
+* Yandex Browser
+
+> [!NOTE]
+> Microsoft Edge is not currently imported because it provides its own profile selection for links.
+
+> [!IMPORTANT]
+> The profile importer never creates targets automatically.
+> A browser must be installed and contain at least one existing local profile before it can appear in the import window.
+
+## Installation
+
+Linkwise is currently intended to be built from source. Use the [Windows](#windows) or [macOS](#macos) packaging
+instructions below to create a local application package.
+
+For development without packaging, see [Development](#development).
+
+## Configuration
+
+On the first launch, Linkwise creates an empty configuration file in the platform-specific application data directory.
+
+| Platform | Configuration path                                   |
+|----------|------------------------------------------------------|
+| macOS    | `~/Library/Application Support/Linkwise/config.json` |
+| Windows  | `%APPDATA%\Linkwise\config.json`                     |
+
+To add browser profiles:
+
+1. Open the **Browser Targets** tab.
+2. Select **Import profiles**.
+3. Review the detected browsers and profiles.
+4. Select the targets you want to add.
+5. Save the configuration.
+
+After browser targets have been configured, create URL rules and select a fallback target.
+
+## Project structure
+
+```text
+src/
+├── Linkwise.Core/
+├── Linkwise.Desktop/
+├── Linkwise.Platforms.Mac/
+└── Linkwise.Platforms.Windows/
 ```
 
-Route a URL as a default-handler style invocation:
+### `Linkwise.Core`
 
-```bash
-dotnet run --project src/Linkwise.Desktop/Linkwise.Desktop.csproj -- https://gitlab.company.local/project
-```
+Platform-independent application logic:
 
-## macOS default-handler notes
+* configuration models;
+* JSON configuration storage;
+* URL rule evaluation;
+* incoming URL parsing;
+* process-based browser launching.
 
-Default-handler registration requires macOS 12 or later and a packaged `.app` bundle. Build a local bundle for the current Apple Silicon Mac with:
+### `Linkwise.Desktop`
+
+Avalonia desktop application:
+
+* settings interface;
+* system tray icon and menu;
+* configuration editing;
+* browser-profile import;
+* route preview;
+* test URL launching.
+
+### `Linkwise.Platforms.Mac`
+
+macOS-specific integration:
+
+* default-handler registration;
+* native Swift helper;
+* HTTP and HTTPS URL scheme handling.
+
+### `Linkwise.Platforms.Windows`
+
+Windows-specific integration:
+
+* per-user URL-handler registration;
+* Default Apps integration;
+* HTTP and HTTPS protocol registration.
+
+## Platform packaging
+
+### macOS
+
+Default-handler registration requires macOS 12 or later and a packaged `.app` bundle.
+
+Build a bundle for the current Apple Silicon Mac:
 
 ```bash
 ./build/macos/package.sh
 ```
 
-For an Intel Mac, use:
+Build for an Intel Mac:
 
 ```bash
 ./build/macos/package.sh osx-x64
 ```
 
-The bundle is written to `artifacts/macos/<rid>/Linkwise.app`. Open that bundle, configure and save a valid fallback browser target, then use **Use Linkwise for Web Links** on the Fallback tab. macOS may ask for confirmation before changing the HTTP and HTTPS handlers.
+The resulting application bundle is written to:
 
-The packaging script publishes the Avalonia application, compiles the native `Linkwise.DefaultHandler` helper with `swiftc`, adds both URL schemes to `Info.plist`, and ad-hoc signs the result for local development. The normal `dotnet build` flow remains cross-platform and does not invoke Swift.
+```text
+artifacts/macos/<rid>/Linkwise.app
+```
 
-Incoming macOS open-URL events are handled through Avalonia's activatable lifetime. The command-line URL flow remains available for development without packaging.
+After packaging:
 
-## Windows default-handler notes
+1. Open `Linkwise.app`.
+2. Configure and save a valid fallback browser target.
+3. Open the **Fallback** tab.
+4. Select **Use Linkwise for Web Links**.
+5. Confirm the HTTP and HTTPS handler changes if requested by macOS.
 
-Build a self-contained Windows x64 directory from PowerShell with:
+The packaging script:
+
+* publishes the Avalonia application;
+* compiles the native `Linkwise.DefaultHandler` helper using `swiftc`;
+* registers the HTTP and HTTPS schemes in `Info.plist`;
+* applies an ad-hoc signature for local development.
+
+A regular project build remains cross-platform and does not invoke Swift.
+
+Incoming macOS open-URL events are handled through Avalonia's activatable lifetime.
+Command-line URL invocation remains available for local development.
+
+### Windows
+
+The packaged Windows application requires the [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
+
+Build a framework-dependent Windows x64 package from PowerShell:
 
 ```powershell
 .\build\windows\package.ps1
 ```
 
-For Windows on ARM, use:
+Build for Windows on ARM:
 
 ```powershell
 .\build\windows\package.ps1 -RuntimeIdentifier win-arm64
 ```
 
-The application is written to `artifacts\windows\<rid>\Linkwise`. Keep that directory at a stable path, run `Linkwise.Desktop.exe`, configure and save a valid fallback browser target, and use **Use Linkwise for Web Links** on the Fallback tab.
+The resulting application directory is written to:
 
-Linkwise registers itself per user under `HKEY_CURRENT_USER`, so administrator rights are not required. Windows then opens the Default Apps page, where Linkwise must be selected for both HTTP and HTTPS. Windows does not allow desktop applications to silently replace those user choices.
+```text
+artifacts\windows\<rid>\Linkwise
+```
+
+Keep this directory at a stable location before registering Linkwise as a URL handler.
+
+After packaging:
+
+1. Run `Linkwise.Desktop.exe`.
+2. Configure and save a valid fallback browser target.
+3. Open the **Fallback** tab.
+4. Select **Use Linkwise for Web Links**.
+5. In Windows Default Apps, assign Linkwise to both HTTP and HTTPS.
+
+Linkwise registers itself under `HKEY_CURRENT_USER`, so administrator privileges are not required.
+
+Windows does not allow desktop applications to silently replace the user's HTTP and HTTPS handler selections. The final assignment must be confirmed through the Windows Settings application.
+
+## Development
+### Requirements
+
+* [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+* Windows or macOS
+* Xcode Command Line Tools when packaging for macOS
+
+### Run from source
+
+Open the settings window:
+
+```bash
+dotnet run --project src/Linkwise.Desktop/Linkwise.Desktop.csproj
+```
+
+Simulate an invocation from the operating system with a URL:
+
+```bash
+dotnet run \
+  --project src/Linkwise.Desktop/Linkwise.Desktop.csproj \
+  -- https://gitlab.company.local/project
+```
+
+### Build
+
+Build the desktop application and its dependencies:
+
+```bash
+dotnet build src/Linkwise.Desktop/Linkwise.Desktop.csproj
+```
+
+## Roadmap
+Potential future improvements include:
+* Linux default-handler integration;
+* signed distributable packages;
+* import and export of routing configurations;
+* automatic update support;
+* localization.
+
+## Contributing
+Issues and pull requests are welcome.
+
+When reporting a platform-integration problem, include:
+* operating system and version;
+* Linkwise version or commit;
+* affected browser;
+* browser installation type;
+* relevant application logs.
+
+## License
+Linkwise is available under the [MIT License](LICENSE).
+
+Third-party components and their licenses are listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
