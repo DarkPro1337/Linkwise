@@ -24,4 +24,7 @@ dotnet publish `
 # debug symbols are disabled. They are not required to run the application.
 Get-ChildItem $output -Filter "*.pdb" -File | Remove-Item -Force
 
+Copy-Item (Join-Path $root "LICENSE") $output
+Copy-Item (Join-Path $root "THIRD-PARTY-NOTICES.md") $output
+
 Write-Host $output

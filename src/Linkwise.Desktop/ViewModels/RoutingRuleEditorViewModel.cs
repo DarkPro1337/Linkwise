@@ -18,7 +18,7 @@ public partial class RoutingRuleEditorViewModel : ViewModelBase
     public partial int Priority { get; set; }
 
     [ObservableProperty]
-    public partial RuleMatchKind MatchKind { get; set; } = RuleMatchKind.ExactHost;
+    public partial RuleMatchKind? MatchKind { get; set; } = RuleMatchKind.ExactHost;
 
     [ObservableProperty]
     public partial string Pattern { get; set; } = string.Empty;
@@ -49,7 +49,7 @@ public partial class RoutingRuleEditorViewModel : ViewModelBase
             Name = Name.Trim(),
             Enabled = Enabled,
             Priority = Priority,
-            MatchKind = MatchKind,
+            MatchKind = MatchKind ?? RuleMatchKind.ExactHost,
             Pattern = Pattern.Trim(),
             TargetId = TargetId.Trim()
         };
